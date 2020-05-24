@@ -26,6 +26,9 @@ android {
     dataBinding {
         enabled = true
     }
+    viewBinding {
+        enabled = true
+    }
     defaultConfig {
         applicationId 'com.example.android.navigation'
         minSdkVersion 19
