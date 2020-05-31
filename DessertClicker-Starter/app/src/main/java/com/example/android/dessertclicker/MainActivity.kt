@@ -18,6 +18,8 @@ package com.example.android.dessertclicker
 
 import android.content.ActivityNotFoundException
 import android.os.Bundle
+import android.os.PersistableBundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -25,11 +27,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ShareCompat
 import androidx.databinding.DataBindingUtil
 import com.example.android.dessertclicker.databinding.ActivityMainBinding
+import timber.log.Timber
+
+const val KEY_REVENUE = "revenue_key"
+const val KEY_DESSERT_SOLD = "dessert_sold_key"
+const val KEY_TIMER_SECONDS = "timer_seconds_key"
 
 class MainActivity : AppCompatActivity() {
 
     private var revenue = 0
     private var dessertsSold = 0
+
+    private lateinit var dessertTimer: DessertTimer
+
 
     // Contains all the views
     private lateinit var binding: ActivityMainBinding
@@ -71,12 +81,76 @@ class MainActivity : AppCompatActivity() {
             onDessertClicked()
         }
 
+        dessertTimer = DessertTimer(this.lifecycle)
+
+        savedInstanceState?.let {
+            revenue = it.getInt(KEY_REVENUE, revenue)
+            dessertsSold = it.getInt(KEY_DESSERT_SOLD, dessertsSold)
+            dessertTimer.secondsCount = it.getInt(KEY_TIMER_SECONDS, 0)
+        }
+
         // Set the TextViews to the right values
         binding.revenue = revenue
         binding.amountSold = dessertsSold
+        showCurrentDessert()
 
         // Make sure the correct dessert is showing
         binding.dessertButton.setImageResource(currentDessert.imageId)
+
+        Log.d("MainActivity", "onCreate: ")
+
+        Timber.d("onCreate: ")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        
+        Log.d("MainActivity", "onStart: ")
+        Timber.d("onStart: ")
+
+//        dessertTimer.startTimer()
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Timber.d("onResume: ")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        
+        Timber.d("onPause: ")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        
+        Timber.d("onStop: ")
+
+//        dessertTimer.stopTimer()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        
+        Timber.d("onDestroy: ")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+
+        Timber.d("onRestart: ")
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        Timber.d("onSaveInstanceState: ")
+
+        outState.putInt(KEY_REVENUE, revenue)
+        outState.putInt(KEY_DESSERT_SOLD, dessertsSold)
+        outState.putInt(KEY_TIMER_SECONDS, dessertTimer.secondsCount)
     }
 
     /**
