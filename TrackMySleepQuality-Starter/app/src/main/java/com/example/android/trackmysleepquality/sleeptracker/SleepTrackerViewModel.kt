@@ -60,8 +60,10 @@ class SleepTrackerViewModel(val database: SleepDatabaseDao, application: Applica
     }
 
     val clearButtonEnabled = nights.map {
-        it.isNotEmpty()
+        it.isNotEmpty() && !isStarted
     }
+
+    private var isStarted = false
 
     init {
         initializeTonight()
@@ -93,6 +95,7 @@ class SleepTrackerViewModel(val database: SleepDatabaseDao, application: Applica
             val night = SleepNight()
             insert(night)
             tonight.value = getTonightFromDatabase()
+            isStarted = true
         }
     }
 
