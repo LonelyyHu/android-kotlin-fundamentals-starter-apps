@@ -25,7 +25,8 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.android.trackmysleepquality.R
@@ -64,9 +65,9 @@ class SleepTrackerFragment : Fragment() {
         val viewModelFactory = SleepTrackerViewModelFactory(dataSource, application)
 
         // Get a reference to the ViewModel associated with this fragment.
-        val sleepTrackerViewModel =
-                ViewModelProviders.of(
-                        this, viewModelFactory).get(SleepTrackerViewModel::class.java)
+        val sleepTrackerViewModel = ViewModelProvider(this, viewModelFactory).get(SleepTrackerViewModel::class.java)
+//        ViewModelProviders.of(
+//                this, viewModelFactory).get(SleepTrackerViewModel::class.java)
 
         // To use the View Model with data binding, you have to explicitly
         // give the binding object a reference to it.
@@ -104,7 +105,7 @@ class SleepTrackerFragment : Fragment() {
         })
 
         // Add an Observer on the state variable for Navigating when STOP button is pressed.
-        sleepTrackerViewModel.navigateToSleepQuality.observe(viewLifecycleOwner, Observer { night ->
+        sleepTrackerViewModel.navigateToSleepQuality.observe(viewLifecycleOwner) { night ->
             Log.wtf("SleepTrackerFragment", "navigateToSleepQuality => night: ${night?.nightId}")
             night?.let {
                 // We need to get the navController from this, because button is not ready, and it
@@ -121,14 +122,16 @@ class SleepTrackerFragment : Fragment() {
                 // has a configuration change.
                 sleepTrackerViewModel.doneNavigating()
             }
-        })
+        }
 
-        sleepTrackerViewModel.navigateToSleepDetailLiveData.observe(viewLifecycleOwner, Observer { nightId ->
-            Log.wtf("SleepTrackerFragment", "navigateToSleepDetailLiveData => nightId: ${nightId}")
-            nightId?.let {
-                this.findNavController()
-                        .navigate(SleepTrackerFragmentDirections.actionSleepTrackerFragmentToSleepDetailFragment(nightId))
-                sleepTrackerViewModel.doneNavigating()
+        sleepTrackerViewModel.navigateToSleepDetailLiveData.observe(viewLifecycleOwner, onChanged = { nightId ->
+            Log.wtf("SleepTrackerFragment", "navigateToSleepDetailLiveData => nightId: $nightId")
+            nightId.let {
+                if (it > 0) {
+                    this.findNavController()
+                            .navigate(SleepTrackerFragmentDirections.actionSleepTrackerFragmentToSleepDetailFragment(nightId))
+                    sleepTrackerViewModel.doneNavigating()
+                }
             }
         })
 
